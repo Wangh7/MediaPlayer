@@ -5,6 +5,7 @@ import android.content.pm.PackageManager;
 import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
 import android.os.Environment;
+import android.os.Handler;
 import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -31,7 +32,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Button stop;
     private SeekBar seekBar;
     int time;
-
+    Handler handler = new Handler();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -84,6 +85,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     };
 
+    Runnable updatesb = new Runnable() {
+        @Override
+        public void run() {
+            seekBar.setProgress(mediaPlayer.getCurrentPosition());
+            handler.postDelayed(updatesb,1000);
+        }
+    };
+
     private void initMediaPlayer() {     //初始化播放器
         try {
             File file = new File(getExternalStorageDirectory(),
@@ -116,6 +125,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.play:
                 if (!mediaPlayer.isPlaying()) {
                     mediaPlayer.start();
+                    handler.post(updatesb);
                 }
                 break;
             case R.id.pause:
