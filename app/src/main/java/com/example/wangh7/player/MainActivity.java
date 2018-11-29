@@ -5,6 +5,9 @@ import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.media.Image;
 import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
 import android.net.Uri;
@@ -27,6 +30,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -48,6 +54,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private TextView title;
     private TextView artist;
     private TextView album;
+    private ImageView imageView;
     private ListView musicListView = null;
     int time;
     Handler handler = new Handler();
@@ -66,7 +73,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         musicListView = (ListView) findViewById(R.id.list_lv);
         seekBar = (SeekBar) findViewById(R.id.seekbar);
-        ImageView imageView = (ImageView) findViewById(R.id.image_1);
+        imageView = (ImageView) findViewById(R.id.image_1);
         play.setOnClickListener(this);
         pause.setOnClickListener(this);
         stop.setOnClickListener(this);
@@ -118,6 +125,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         TextView title = (TextView) findViewById(R.id.title_tx);
         TextView artist = (TextView) findViewById(R.id.artist_tx);
         TextView album = (TextView) findViewById(R.id.album_tx);
+        //TextView albumid = (TextView) findViewById(R.id.albumid_tx);
+        ImageView imageView = (ImageView) findViewById(R.id.image_1);
         try {
             File file = new File(getExternalStorageDirectory(),
                     "test.mp3");
@@ -128,21 +137,24 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             e.printStackTrace();
         }
 
+        ContentResolver resolver = getContentResolver();
         //Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
 
         String[] testtest = new String[]{MediaStore.Audio.Media.TITLE,
                 MediaStore.Audio.Media.DURATION,
                 MediaStore.Audio.Media.ARTIST,
                 MediaStore.Audio.Media.ALBUM,
+                MediaStore.Audio.Media.ALBUM_ID,
                 MediaStore.Audio.Media._ID,
                 MediaStore.Audio.Media.DATA};
 
 
-        Cursor cursor = getContentResolver().query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, testtest, null, null, MediaStore.Audio.Media.DEFAULT_SORT_ORDER);
+        Cursor cursor = resolver.query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, testtest, null, null, MediaStore.Audio.Media.DEFAULT_SORT_ORDER);
 
         //while (cursor.moveToNext()) {
-            cursor.moveToNext();
-            cursor.moveToNext();
+        cursor.moveToNext();
+        cursor.moveToNext();
+
 
         //获取音乐的路径，这个参数我们实际上不会用到，不过在调试程序的时候可以方便我们看到音乐的真实路径，确定寻找的文件的确就在我们规定的目录当中
             //        String path = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA));
@@ -162,9 +174,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             //获取音乐的时长，单位是毫秒
             //     long duration = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DURATION));
             //获取该音乐所在专辑的id
-            //     int albumId = cursor.getInt(cursor.getColumnIndexOrThrow(MediaStore.Audio.Albums.ALBUM_ID));
+                 int albumId = cursor.getInt(cursor.getColumnIndexOrThrow(MediaStore.Audio.Albums.ALBUM_ID));
             //再通过AlbumId组合出专辑的Uri地址
-            //        Uri albumUri = ContentUris.withAppendedId(Uri.parse("content://media/external/audio/albumart"), albumId);
+                    Uri albumUri = ContentUris.withAppendedId(Uri.parse("content://media/external/audio/albumart"), albumId);
 
             //MusicInfo musicInfo = new MusicInfo();
             //musicInfo.setId(Integer.valueOf(id));
@@ -172,15 +184,43 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             //   musicInfo.setArtist(artist);
 
             //title.setText(musicInfo.getTitle());
-            title.setText("曲    名:"+title_t);
-            artist.setText("艺术家:"+artist_t);
-            album.setText("专    辑:"+album_t);
+
+            Bitmap bm = getAlbumArt(albumId);
+            //
+                title.setText("曲    名:"+title_t);
+                artist.setText("艺术家:"+artist_t);
+                album.setText("专    辑:"+album_t);
+                //albumid.setText("专辑id:"+albumId);
+            //}
+            imageView.setImageBitmap(bm);
         //artist.setText("123123");
         //}
         cursor.close();
 
 
     }
+
+    private Bitmap getAlbumArt(int album_id) {
+        TextView albumid = (TextView) findViewById(R.id.albumid_tx);
+        String mUriAlbums = "content://media/external/audio/albums";
+        String[] projection = new String[]{"album_art"};
+        Cursor cur = getContentResolver().query(Uri.parse(mUriAlbums + "/" + Integer.toString(album_id)), projection, null, null, null);
+        String album_art = null;
+        if (cur.getCount() > 0 && cur.getColumnCount() > 0) {
+            cur.moveToFirst();
+            album_art = cur.getString(0);
+            //albumid.setText(""+cur.getCount());
+        }
+        cur.close();
+        Bitmap bm = null;
+        if (album_art != null) {
+            bm = BitmapFactory.decodeFile(album_art);
+        } else {
+            bm = BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher_background);
+        }
+        return bm;
+    }
+
 
     public void onRequestPermissionResult(int requestCode, String[] permissions, int[] grantResults) {
         switch (requestCode) {
