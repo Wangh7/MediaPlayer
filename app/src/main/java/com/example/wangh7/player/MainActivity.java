@@ -1,9 +1,13 @@
 package com.example.wangh7.player;
 
 import android.Manifest;
+import android.content.ContentResolver;
+import android.content.ContentUris;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Environment;
 import android.os.Handler;
 import android.provider.MediaStore;
@@ -13,13 +17,20 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.SeekBar;
+import android.widget.SimpleAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 import static android.os.Environment.getExternalStorageDirectory;
 
@@ -27,12 +38,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private static final String TAG = "MainActivity";
     private MediaPlayer mediaPlayer = new MediaPlayer();
+    private ArrayList<Map<String, Object>> listems = null;//需要显示在listview里的信息
+    public static ArrayList<MusicInfo> musicList = null; //音乐信息列表
+    private static int currentposition = -1;//当前播放列表里哪首音乐
     private Button play;
     private Button pause;
     private Button stop;
     private SeekBar seekBar;
+    private TextView title;
+    private TextView artist;
+    private TextView album;
+    private ListView musicListView = null;
     int time;
     Handler handler = new Handler();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -41,16 +60,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         pause = (Button) findViewById(R.id.pause);
         stop = (Button) findViewById(R.id.stop);
 
-        TextView title = (TextView)findViewById(R.id.title_tx);
-        TextView artist = (TextView)findViewById(R.id.artist_tx);
-        TextView album = (TextView)findViewById(R.id.album_tx);
+        TextView title = (TextView) findViewById(R.id.title_tx);
+        TextView artist = (TextView) findViewById(R.id.artist_tx);
+        TextView album = (TextView) findViewById(R.id.album_tx);
 
-        seekBar = (SeekBar)findViewById(R.id.seekbar);
+        musicListView = (ListView) findViewById(R.id.list_lv);
+        seekBar = (SeekBar) findViewById(R.id.seekbar);
         ImageView imageView = (ImageView) findViewById(R.id.image_1);
         play.setOnClickListener(this);
         pause.setOnClickListener(this);
         stop.setOnClickListener(this);
         seekBar.setOnSeekBarChangeListener(mOnSeekBarChangeListener);
+
 
         if (ContextCompat.checkSelfPermission(MainActivity.this,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
@@ -79,7 +100,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         @Override
         public void onStopTrackingTouch(SeekBar seekBar) {
 
-            if(mediaPlayer != null) {
+            if (mediaPlayer != null) {
                 mediaPlayer.seekTo(seekBar.getProgress());
             }
         }
@@ -89,11 +110,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         @Override
         public void run() {
             seekBar.setProgress(mediaPlayer.getCurrentPosition());
-            handler.postDelayed(updatesb,1000);
+            handler.postDelayed(updatesb, 1000);
         }
     };
 
     private void initMediaPlayer() {     //初始化播放器
+        TextView title = (TextView) findViewById(R.id.title_tx);
+        TextView artist = (TextView) findViewById(R.id.artist_tx);
+        TextView album = (TextView) findViewById(R.id.album_tx);
         try {
             File file = new File(getExternalStorageDirectory(),
                     "test.mp3");
@@ -103,6 +127,59 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        //Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+
+        String[] testtest = new String[]{MediaStore.Audio.Media.TITLE,
+                MediaStore.Audio.Media.DURATION,
+                MediaStore.Audio.Media.ARTIST,
+                MediaStore.Audio.Media.ALBUM,
+                MediaStore.Audio.Media._ID,
+                MediaStore.Audio.Media.DATA};
+
+
+        Cursor cursor = getContentResolver().query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, testtest, null, null, MediaStore.Audio.Media.DEFAULT_SORT_ORDER);
+
+        //while (cursor.moveToNext()) {
+            cursor.moveToNext();
+            cursor.moveToNext();
+
+        //获取音乐的路径，这个参数我们实际上不会用到，不过在调试程序的时候可以方便我们看到音乐的真实路径，确定寻找的文件的确就在我们规定的目录当中
+            //        String path = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA));
+            //获取音乐的ID
+            //       String id = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID));
+            //通过URI和ID，组合出改音乐特有的Uri地址
+            //      Uri musicUri = Uri.withAppendedPath(uri, id);
+            //获取音乐的名称
+            //    Log.e(TAG,"mingzi:");
+            String title_t = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.TITLE));
+            // Log.e(TAG,tilte);
+            //获取艺人
+               String artist_t = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ARTIST));
+
+               //获取专辑名字
+            String album_t = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM));
+            //获取音乐的时长，单位是毫秒
+            //     long duration = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DURATION));
+            //获取该音乐所在专辑的id
+            //     int albumId = cursor.getInt(cursor.getColumnIndexOrThrow(MediaStore.Audio.Albums.ALBUM_ID));
+            //再通过AlbumId组合出专辑的Uri地址
+            //        Uri albumUri = ContentUris.withAppendedId(Uri.parse("content://media/external/audio/albumart"), albumId);
+
+            //MusicInfo musicInfo = new MusicInfo();
+            //musicInfo.setId(Integer.valueOf(id));
+            // musicInfo.setTitle(tilte);
+            //   musicInfo.setArtist(artist);
+
+            //title.setText(musicInfo.getTitle());
+            title.setText("曲    名:"+title_t);
+            artist.setText("艺术家:"+artist_t);
+            album.setText("专    辑:"+album_t);
+        //artist.setText("123123");
+        //}
+        cursor.close();
+
+
     }
 
     public void onRequestPermissionResult(int requestCode, String[] permissions, int[] grantResults) {
@@ -142,6 +219,57 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             default:
                 break;
         }
+    }
+
+    public ArrayList<MusicInfo> scanAllAudioFiles() {
+        //生成动态数组，并且转载数据
+        ArrayList<MusicInfo> mylist = new ArrayList<MusicInfo>();
+
+        /*查询媒体数据库
+        参数分别为（路径，要查询的列名，条件语句，条件参数，排序）
+        视频：MediaStore.Video.Media.EXTERNAL_CONTENT_URI
+        图片;MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+
+         */
+        Cursor cursor = getContentResolver().query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, null, null, null, MediaStore.Audio.Media.DEFAULT_SORT_ORDER);
+        //遍历媒体数据库
+        if (cursor.moveToFirst()) {
+            while (!cursor.isAfterLast()) {
+                //歌曲编号
+                int id = cursor.getInt(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID));
+                //歌曲标题
+                String tilte = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.TITLE));
+                //歌曲的专辑名：MediaStore.Audio.Media.ALBUM
+                String album = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM));
+                int albumId = cursor.getInt(cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM_ID));
+                //歌曲的歌手名： MediaStore.Audio.Media.ARTIST
+                String artist = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST));
+                //歌曲文件的路径 ：MediaStore.Audio.Media.DATA
+                String url = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA));
+                //歌曲的总播放时长 ：MediaStore.Audio.Media.DURATION
+                int duration = cursor.getInt(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DURATION));
+                //歌曲文件的大小 ：MediaStore.Audio.Media.SIZE
+                Long size = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.SIZE));
+
+
+                if (size > 1024 * 800) {//大于800K
+                    MusicInfo musicInfo = new MusicInfo();
+                    musicInfo.setId(id);
+                    musicInfo.setArtist(artist);
+                    musicInfo.setSize(size);
+                    musicInfo.setTitle(tilte);
+                    musicInfo.setTime(duration);
+                    musicInfo.setUrl(url);
+                    musicInfo.setAlbum(album);
+                    musicInfo.setAlbumId(albumId);
+
+                    mylist.add(musicInfo);
+
+                }
+                cursor.moveToNext();
+            }
+        }
+        return mylist;
     }
 
     protected void onDestory() {
