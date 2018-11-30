@@ -29,6 +29,8 @@ import android.widget.SimpleAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.w3c.dom.Text;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -55,6 +57,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private TextView title;
     private TextView artist;
     private TextView album;
+    private TextView ontime;
+    private TextView alltime;
     private ImageView imageView;
     private ListView musicListView = null;
     int time;
@@ -114,8 +118,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     };
 
     Runnable updatesb = new Runnable() {
+        //TextView ontime = (TextView) findViewById(R.id.ontime_tx);
         @Override
         public void run() {
+            TextView ontime = (TextView) findViewById(R.id.ontime_tx);
+
+            ontime.setText(getOnTime(mediaPlayer.getCurrentPosition()));
             seekBar.setProgress(mediaPlayer.getCurrentPosition());
             handler.postDelayed(updatesb, 100);
         }
@@ -130,6 +138,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 //点击播放音乐，不过需要判断一下当前是否有音乐在播放，需要关闭正在播放的
                 //position 可以获取到点击的是哪一个，去 musicList 里寻找播放
                 currentposition = position;
+                handler.post(updatesb);
                 player(currentposition);
             }
         });
@@ -247,20 +256,35 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     }
 
+    public String getOnTime(int time) {
+        String timew;
+        time /= 1000;
+        int minute = time / 60;
+        int hour = minute / 60;
+        int second = time % 60;
+        minute %= 60;
+        timew = String.format("%02d:%02d", minute, second);
+        return timew;
+    }
+
     public void player(int position){
         TextView title = (TextView) findViewById(R.id.title_tx);
         TextView artist = (TextView) findViewById(R.id.artist_tx);
         TextView album = (TextView) findViewById(R.id.album_tx);
+        TextView allTime = (TextView) findViewById(R.id.alltime_tx);
         ImageView imageView = (ImageView) findViewById(R.id.image_1);
         int id = musicList.get(position).getId();
         String titlep = musicList.get(position).getTitle();
         String artistp = musicList.get(position).getArtist();
         String albump = musicList.get(position).getAlbum();
+        String timep = musicList.get(position).getTime();
         int dur = musicList.get(position).getDur();
         seekBar.setMax(dur);
         title.setText(titlep);
         artist.setText(artistp);
         album.setText(albump);
+        allTime.setText(timep);
+        imageView.setImageBitmap(musicList.get(position).getBm());
         Uri musicUri = Uri.withAppendedPath(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, String.valueOf(id));
         try {
             mediaPlayer.reset();
@@ -325,8 +349,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             case R.id.stop:
                 if (mediaPlayer.isPlaying()) {
+                    TextView ontime = (TextView) findViewById(R.id.ontime_tx);
                     mediaPlayer.reset();
+                    seekBar.setProgress(0);
+                    ontime.setText("00:00");
                     initMediaPlayer();
+                    handler.removeCallbacks(updatesb);
                 }
                 break;
             default:
