@@ -160,7 +160,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             map.put("url", mp3Info.getUrl());
 
             map.put("bitmap", mp3Info.getBm());
-
+            //map.put("bitmap", R.drawable.ic_launcher_background);
             listems.add(map);
 
         }
@@ -392,6 +392,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 //歌曲文件的大小 ：MediaStore.Audio.Media.SIZE
                 Long size = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.SIZE));
 
+                Bitmap bm = getAlbumArt(albumId);
 
                 if (size > 1024 * 800) {//大于800K
                     MusicInfo musicInfo = new MusicInfo();
@@ -404,7 +405,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     musicInfo.setDur(duration);
                     musicInfo.setAlbum(album);
                     musicInfo.setAlbumId(albumId);
-                    Bitmap bm = getAlbumArt(albumId);
                     musicInfo.setBm(bm);
                     mylist.add(musicInfo);
 
