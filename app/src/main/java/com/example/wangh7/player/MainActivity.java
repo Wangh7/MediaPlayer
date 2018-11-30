@@ -122,6 +122,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     };
 
     private void initMediaPlayer() {     //初始化播放器
+        musicListView = (ListView)findViewById(R.id.list_lv);
         TextView title = (TextView) findViewById(R.id.title_tx);
         TextView artist = (TextView) findViewById(R.id.artist_tx);
         TextView album = (TextView) findViewById(R.id.album_tx);
@@ -136,6 +137,48 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        musicListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                //点击播放音乐，不过需要判断一下当前是否有音乐在播放，需要关闭正在播放的
+                //position 可以获取到点击的是哪一个，去 musicList 里寻找播放
+                currentposition = position;
+                //player(currentposition);
+            }
+        });
+
+        musicList  = scanAllAudioFiles();
+        //这里其实可以直接在扫描时返回 ArrayList<Map<String, Object>>()
+        listems = new ArrayList<Map<String, Object>>();
+        for (Iterator iterator = musicList.iterator(); iterator.hasNext();) {
+            Map<String, Object> map = new HashMap<String, Object>();
+            MusicInfo mp3Info = (MusicInfo) iterator.next();
+//            map.put("id",mp3Info.getId());
+            map.put("title", mp3Info.getTitle());
+            map.put("artist", mp3Info.getArtist());
+            map.put("album", mp3Info.getAlbum());
+//            map.put("albumid", mp3Info.getAlbumId());
+            map.put("duration", mp3Info.getTime());
+            map.put("size", mp3Info.getSize());
+            map.put("url", mp3Info.getUrl());
+
+            map.put("bitmap", mp3Info.getBm());
+
+            listems.add(map);
+
+        }
+
+        SimpleAdapter mSimpleAdapter = new SimpleAdapter(
+                this,
+                listems,
+                R.layout.single_music,
+                new String[] {"bitmap","title","artist", "album"},
+                new int[] {R.id.image_sg,R.id.title_sg,R.id.artist_sg,R.id.album_sg}
+        );
+        //listview里加载数据
+        musicListView.setAdapter(mSimpleAdapter);
+
 
         ContentResolver resolver = getContentResolver();
         Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
@@ -274,7 +317,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
         }
     }
-/*
+
     public ArrayList<MusicInfo> scanAllAudioFiles() {
         //生成动态数组，并且转载数据
         ArrayList<MusicInfo> mylist = new ArrayList<MusicInfo>();
@@ -284,7 +327,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         视频：MediaStore.Video.Media.EXTERNAL_CONTENT_URI
         图片;MediaStore.Images.Media.EXTERNAL_CONTENT_URI
 
-
+*/
         Cursor cursor = getContentResolver().query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, null, null, null, MediaStore.Audio.Media.DEFAULT_SORT_ORDER);
         //遍历媒体数据库
         if (cursor.moveToFirst()) {
@@ -325,7 +368,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
         return mylist;
     }
-*/
+
     protected void onDestory() {
         super.onDestroy();
         if (mediaPlayer != null) {
