@@ -33,6 +33,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.FieldPosition;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -144,7 +145,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 //点击播放音乐，不过需要判断一下当前是否有音乐在播放，需要关闭正在播放的
                 //position 可以获取到点击的是哪一个，去 musicList 里寻找播放
                 currentposition = position;
-                //player(currentposition);
+                player(currentposition);
             }
         });
 
@@ -178,6 +179,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         );
         //listview里加载数据
         musicListView.setAdapter(mSimpleAdapter);
+
 
 
         ContentResolver resolver = getContentResolver();
@@ -255,6 +257,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         cursor.close();
 
 
+    }
+
+    public void player(int position){
+        int id = musicList.get(position).getId();
+        Uri musicUri = Uri.withAppendedPath(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, String.valueOf(id));
+        try {
+            mediaPlayer.reset();
+            mediaPlayer.setDataSource(MainActivity.this, musicUri);
+            mediaPlayer.prepare();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private Bitmap getAlbumArt(int album_id) {
