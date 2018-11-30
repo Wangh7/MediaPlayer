@@ -1,5 +1,8 @@
 package com.example.wangh7.player;
 
+import android.graphics.Bitmap;
+import android.net.Uri;
+
 public class MusicInfo {
     private int id;
     private String title;
@@ -9,6 +12,16 @@ public class MusicInfo {
     private String size;
     private int albumId;
     private String album;
+    private Bitmap bm;
+    private Uri uri;
+
+    public Uri getUri(){ return uri; }
+
+    public void setUri(){ this.uri = uri; }
+
+    public Bitmap getBm(){ return bm; }
+
+    public void setBm(Bitmap bm){ this.bm = bm; }
 
     public int getId() {
         return id;

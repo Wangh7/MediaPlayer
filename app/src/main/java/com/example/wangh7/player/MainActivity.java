@@ -176,16 +176,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                //获取专辑名字
             String album_t = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM));
             //获取音乐的时长，单位是毫秒
-            //     long duration = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DURATION));
+                 long duration = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DURATION));
             //获取该音乐所在专辑的id
                  int albumId = cursor.getInt(cursor.getColumnIndexOrThrow(MediaStore.Audio.Albums.ALBUM_ID));
             //再通过AlbumId组合出专辑的Uri地址
                     Uri albumUri = ContentUris.withAppendedId(Uri.parse("content://media/external/audio/albumart"), albumId);
 
-            //MusicInfo musicInfo = new MusicInfo();
-            //musicInfo.setId(Integer.valueOf(id));
-            // musicInfo.setTitle(tilte);
-            //   musicInfo.setArtist(artist);
 
             //title.setText(musicInfo.getTitle());
         try {
@@ -196,14 +192,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             e.printStackTrace();
         }
 
+        MusicInfo musicInfo = new MusicInfo();
+        musicInfo.setId(Integer.valueOf(id));
+        musicInfo.setTitle(title_t);
+        musicInfo.setArtist(artist_t);
+        musicInfo.setAlbum(album_t);
+        musicInfo.setAlbumId(albumId);
             Bitmap bm = getAlbumArt(albumId);
+            musicInfo.setBm(bm);
             //
-                title.setText("曲    名:"+title_t);
-                artist.setText("艺术家:"+artist_t);
-                album.setText("专    辑:"+album_t);
+                title.setText("曲    名:"+musicInfo.getTitle());
+                artist.setText("艺术家:"+musicInfo.getArtist());
+                album.setText("专    辑:"+musicInfo.getAlbum());
                 //albumid.setText("专辑id:"+albumId);
             //}
-            imageView.setImageBitmap(bm);
+            imageView.setImageBitmap(musicInfo.getBm());
         //artist.setText("123123");
         //}
         cursor.close();
@@ -271,7 +274,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
         }
     }
-
+/*
     public ArrayList<MusicInfo> scanAllAudioFiles() {
         //生成动态数组，并且转载数据
         ArrayList<MusicInfo> mylist = new ArrayList<MusicInfo>();
@@ -281,7 +284,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         视频：MediaStore.Video.Media.EXTERNAL_CONTENT_URI
         图片;MediaStore.Images.Media.EXTERNAL_CONTENT_URI
 
-         */
+
         Cursor cursor = getContentResolver().query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, null, null, null, MediaStore.Audio.Media.DEFAULT_SORT_ORDER);
         //遍历媒体数据库
         if (cursor.moveToFirst()) {
@@ -322,7 +325,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
         return mylist;
     }
-
+*/
     protected void onDestory() {
         super.onDestroy();
         if (mediaPlayer != null) {
