@@ -88,8 +88,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         } else {
             initMediaPlayer();
         }
-        time = mediaPlayer.getDuration();
-        seekBar.setMax(time);
+
 
     }
 
@@ -124,20 +123,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void initMediaPlayer() {     //初始化播放器
         musicListView = (ListView)findViewById(R.id.list_lv);
-        TextView title = (TextView) findViewById(R.id.title_tx);
-        TextView artist = (TextView) findViewById(R.id.artist_tx);
-        TextView album = (TextView) findViewById(R.id.album_tx);
-        //TextView albumid = (TextView) findViewById(R.id.albumid_tx);
-        ImageView imageView = (ImageView) findViewById(R.id.image_1);
-        try {
-            File file = new File(getExternalStorageDirectory(),
-                    "test.mp3");
-            mediaPlayer.setDataSource(file.getPath());
-            mediaPlayer.prepare();
-            //MediaStore.Audio.Media._ID;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
 
         musicListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -160,7 +145,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             map.put("artist", mp3Info.getArtist());
             map.put("album", mp3Info.getAlbum());
 //            map.put("albumid", mp3Info.getAlbumId());
-            map.put("duration", mp3Info.getTime());
+            map.put("duration", mp3Info.getDur());
+            map.put("time", mp3Info.getTime());
             map.put("size", mp3Info.getSize());
             map.put("url", mp3Info.getUrl());
 
@@ -193,7 +179,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 MediaStore.Audio.Media._ID,
                 MediaStore.Audio.Media.DATA};
 
-
+/*
         Cursor cursor = resolver.query(uri, searchlist, null, null, MediaStore.Audio.Media.DEFAULT_SORT_ORDER);
 
         //while (cursor.moveToNext()) {
@@ -246,33 +232,49 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             Bitmap bm = getAlbumArt(albumId);
             musicInfo.setBm(bm);
             //
+        /*
                 title.setText("曲    名:"+musicInfo.getTitle());
                 artist.setText("艺术家:"+musicInfo.getArtist());
                 album.setText("专    辑:"+musicInfo.getAlbum());
                 //albumid.setText("专辑id:"+albumId);
             //}
             imageView.setImageBitmap(musicInfo.getBm());
+
         //artist.setText("123123");
         //}
         cursor.close();
-
+*/
 
     }
 
     public void player(int position){
+        TextView title = (TextView) findViewById(R.id.title_tx);
+        TextView artist = (TextView) findViewById(R.id.artist_tx);
+        TextView album = (TextView) findViewById(R.id.album_tx);
+        ImageView imageView = (ImageView) findViewById(R.id.image_1);
         int id = musicList.get(position).getId();
+        String titlep = musicList.get(position).getTitle();
+        String artistp = musicList.get(position).getArtist();
+        String albump = musicList.get(position).getAlbum();
+        int dur = musicList.get(position).getDur();
+        seekBar.setMax(dur);
+        title.setText(titlep);
+        artist.setText(artistp);
+        album.setText(albump);
         Uri musicUri = Uri.withAppendedPath(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, String.valueOf(id));
         try {
             mediaPlayer.reset();
             mediaPlayer.setDataSource(MainActivity.this, musicUri);
             mediaPlayer.prepare();
+            mediaPlayer.start();
+
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
     private Bitmap getAlbumArt(int album_id) {
-        TextView albumid = (TextView) findViewById(R.id.albumid_tx);
+        //TextView albumid = (TextView) findViewById(R.id.albumid_tx);
         String mUriAlbums = "content://media/external/audio/albums";
         String[] projection = new String[]{"album_art"};
         Cursor cur = getContentResolver().query(Uri.parse(mUriAlbums + "/" + Integer.toString(album_id)), projection, null, null, null);
@@ -371,9 +373,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     musicInfo.setTitle(tilte);
                     musicInfo.setTime(duration);
                     musicInfo.setUrl(url);
+                    musicInfo.setDur(duration);
                     musicInfo.setAlbum(album);
                     musicInfo.setAlbumId(albumId);
-
+                    Bitmap bm = getAlbumArt(albumId);
+                    musicInfo.setBm(bm);
                     mylist.add(musicInfo);
 
                 }

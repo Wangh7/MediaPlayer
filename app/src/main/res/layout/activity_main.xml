@@ -67,11 +67,7 @@
                 android:layout_height="wrap_content"
                 android:id="@+id/album_tx"
                 android:text="album"/>
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/albumid_tx"
-                android:text="albumid"/>
+
 
 
 

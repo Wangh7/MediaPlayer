@@ -14,10 +14,15 @@ public class MusicInfo {
     private String album;
     private Bitmap bm;
     private Uri uri;
+    private int dur;
+
+    public int getDur(){ return dur; }
+
+    public void setDur(int dur){ this.dur = dur; }
 
     public Uri getUri(){ return uri; }
 
-    public void setUri(){ this.uri = uri; }
+    public void setUri(Uri uri){ this.uri = uri; }
 
     public Bitmap getBm(){ return bm; }
 
