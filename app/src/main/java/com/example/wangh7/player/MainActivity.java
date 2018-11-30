@@ -117,7 +117,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         @Override
         public void run() {
             seekBar.setProgress(mediaPlayer.getCurrentPosition());
-            handler.postDelayed(updatesb, 1000);
+            handler.postDelayed(updatesb, 100);
         }
     };
 
@@ -138,9 +138,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
 
         ContentResolver resolver = getContentResolver();
-        //Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+        Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
 
-        String[] testtest = new String[]{MediaStore.Audio.Media.TITLE,
+        String[] searchlist = new String[]{MediaStore.Audio.Media.TITLE,
                 MediaStore.Audio.Media.DURATION,
                 MediaStore.Audio.Media.ARTIST,
                 MediaStore.Audio.Media.ALBUM,
@@ -149,19 +149,23 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 MediaStore.Audio.Media.DATA};
 
 
-        Cursor cursor = resolver.query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, testtest, null, null, MediaStore.Audio.Media.DEFAULT_SORT_ORDER);
+        Cursor cursor = resolver.query(uri, searchlist, null, null, MediaStore.Audio.Media.DEFAULT_SORT_ORDER);
 
         //while (cursor.moveToNext()) {
         cursor.moveToNext();
         cursor.moveToNext();
+        //cursor.moveToNext();
+        //cursor.moveToNext();
+        //cursor.moveToNext();
+        //cursor.moveToNext();
 
 
         //获取音乐的路径，这个参数我们实际上不会用到，不过在调试程序的时候可以方便我们看到音乐的真实路径，确定寻找的文件的确就在我们规定的目录当中
             //        String path = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA));
             //获取音乐的ID
-            //       String id = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID));
+                   String id = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID));
             //通过URI和ID，组合出改音乐特有的Uri地址
-            //      Uri musicUri = Uri.withAppendedPath(uri, id);
+                  Uri musicUri = Uri.withAppendedPath(uri, id);
             //获取音乐的名称
             //    Log.e(TAG,"mingzi:");
             String title_t = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.TITLE));
@@ -184,6 +188,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             //   musicInfo.setArtist(artist);
 
             //title.setText(musicInfo.getTitle());
+        try {
+            mediaPlayer.reset();
+            mediaPlayer.setDataSource(MainActivity.this, musicUri);
+            mediaPlayer.prepare();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
             Bitmap bm = getAlbumArt(albumId);
             //

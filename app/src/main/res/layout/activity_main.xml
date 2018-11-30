@@ -7,24 +7,33 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <Button
+
+
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/play"
-        android:text="play"/>
+        android:orientation="horizontal">
+        <Button
+            android:layout_weight="1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/play"
+            android:text="play"/>
 
-    <Button
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/pause"
-        android:text="pause"/>
+        <Button
+            android:layout_weight="1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/pause"
+            android:text="pause"/>
 
-    <Button
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/stop"
-        android:text="stop"/>
-
+        <Button
+            android:layout_weight="1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/stop"
+            android:text="stop"/>
+    </LinearLayout>
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -51,9 +60,29 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/seekbar" />
-    <ImageView
-        android:layout_width="wrap_content"
+    <RelativeLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="5dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/ontime_tx"
+            android:layout_alignParentLeft="true"
+            android:text="00:00"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/alltime_tx"
+            android:layout_alignParentRight="true"
+            android:text="00:00"/>
+
+    </RelativeLayout>
+    <ImageView
+        android:layout_width="300dp"
+        android:layout_height="300dp"
         android:id="@+id/image_1" />
     <ListView
         android:layout_width="match_parent"
