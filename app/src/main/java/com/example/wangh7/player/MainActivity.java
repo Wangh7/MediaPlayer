@@ -53,6 +53,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Button play;
     private Button pause;
     private Button stop;
+    private Button next;
+    private Button prev;
     private SeekBar seekBar;
     private TextView title;
     private TextView artist;
@@ -71,6 +73,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         play = (Button) findViewById(R.id.play);
         pause = (Button) findViewById(R.id.pause);
         stop = (Button) findViewById(R.id.stop);
+        next = (Button) findViewById(R.id.next);
+        prev = (Button) findViewById(R.id.prev);
 
         TextView title = (TextView) findViewById(R.id.title_tx);
         TextView artist = (TextView) findViewById(R.id.artist_tx);
@@ -82,6 +86,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         play.setOnClickListener(this);
         pause.setOnClickListener(this);
         stop.setOnClickListener(this);
+        next.setOnClickListener(this);
+        prev.setOnClickListener(this);
         seekBar.setOnSeekBarChangeListener(mOnSeekBarChangeListener);
 
 
@@ -99,18 +105,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private SeekBar.OnSeekBarChangeListener mOnSeekBarChangeListener = new SeekBar.OnSeekBarChangeListener() {
 
         @Override
-        public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-
-        }
+        public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) { }
 
         @Override
-        public void onStartTrackingTouch(SeekBar seekBar) {
-
-        }
+        public void onStartTrackingTouch(SeekBar seekBar) { }
 
         @Override
         public void onStopTrackingTouch(SeekBar seekBar) {
-
             if (mediaPlayer != null) {
                 mediaPlayer.seekTo(seekBar.getProgress());
             }
@@ -357,6 +358,27 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     handler.removeCallbacks(updatesb);
                 }
                 break;
+            case R.id.next:
+                if(mediaPlayer.isPlaying()) {
+                    if(currentposition<musicList.size()-1) {
+                        currentposition = currentposition + 1;
+                        player(currentposition);
+                    }
+                    else
+                        Toast.makeText(MainActivity.this,"This is the last song",Toast.LENGTH_SHORT).show();
+
+                }
+                break;
+            case R.id.prev:
+                if(mediaPlayer.isPlaying()) {
+                    if(currentposition>0) {
+                        currentposition = currentposition - 1;
+                        player(currentposition);
+                    }
+                    else
+                        Toast.makeText(MainActivity.this,"This is the first song",Toast.LENGTH_SHORT).show();
+
+                }
             default:
                 break;
         }
