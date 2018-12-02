@@ -40,6 +40,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Random;
 
 import static android.os.Environment.getExternalStorageDirectory;
 
@@ -50,8 +51,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private ArrayList<Map<String, Object>> listems = null;//需要显示在listview里的信息
     public static ArrayList<MusicInfo> musicList = null; //音乐信息列表
     private static int currentposition = -1;//当前播放列表里哪首音乐
-    private Button play;
-    private Button pause;
+    private static int playstate = 0;//播放状态：0顺序；1循环；2随机；3单曲
+    private Button state;
+    private Button playOrPause;
     private Button stop;
     private Button next;
     private Button prev;
@@ -64,14 +66,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private ImageView imageView;
     private ListView musicListView = null;
     int time;
-    Handler handler = new Handler();
+    Handler handler = new Handler();//界面更新控制
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        play = (Button) findViewById(R.id.play);
-        pause = (Button) findViewById(R.id.pause);
+        state = (Button) findViewById(R.id.state);
+        playOrPause = (Button) findViewById(R.id.play_or_pause);
         stop = (Button) findViewById(R.id.stop);
         next = (Button) findViewById(R.id.next);
         prev = (Button) findViewById(R.id.prev);
@@ -83,8 +85,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         musicListView = (ListView) findViewById(R.id.list_lv);
         seekBar = (SeekBar) findViewById(R.id.seekbar);
         imageView = (ImageView) findViewById(R.id.image_1);
-        play.setOnClickListener(this);
-        pause.setOnClickListener(this);
+        state.setOnClickListener(this);
+        playOrPause.setOnClickListener(this);
         stop.setOnClickListener(this);
         next.setOnClickListener(this);
         prev.setOnClickListener(this);
@@ -105,10 +107,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private SeekBar.OnSeekBarChangeListener mOnSeekBarChangeListener = new SeekBar.OnSeekBarChangeListener() {
 
         @Override
-        public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) { }
+        public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+        }
 
         @Override
-        public void onStartTrackingTouch(SeekBar seekBar) { }
+        public void onStartTrackingTouch(SeekBar seekBar) {
+        }
 
         @Override
         public void onStopTrackingTouch(SeekBar seekBar) {
@@ -124,6 +128,25 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         public void run() {
             TextView ontime = (TextView) findViewById(R.id.ontime_tx);
 
+            switch (playstate) {
+                case 0:
+                    state.setText("ORDER");
+                    break;
+                case 1:
+                    state.setText("LOOP");
+                    break;
+                case 2:
+                    state.setText("RAND");
+                    break;
+                case 3:
+                    state.setText("SINGLE");
+                default:
+                    break;
+            }
+            if(mediaPlayer.isPlaying())
+                playOrPause.setText("pause");
+            else
+                playOrPause.setText("play");
             ontime.setText(getOnTime(mediaPlayer.getCurrentPosition()));
             seekBar.setProgress(mediaPlayer.getCurrentPosition());
             handler.postDelayed(updatesb, 100);
@@ -131,7 +154,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     };
 
     private void initMediaPlayer() {     //初始化播放器
-        musicListView = (ListView)findViewById(R.id.list_lv);
+        musicListView = (ListView) findViewById(R.id.list_lv);
 
         musicListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -144,10 +167,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         });
 
-        musicList  = scanAllAudioFiles();
+        musicList = scanAllAudioFiles();
         //这里其实可以直接在扫描时返回 ArrayList<Map<String, Object>>()
         listems = new ArrayList<Map<String, Object>>();
-        for (Iterator iterator = musicList.iterator(); iterator.hasNext();) {
+        for (Iterator iterator = musicList.iterator(); iterator.hasNext(); ) {
             Map<String, Object> map = new HashMap<String, Object>();
             MusicInfo mp3Info = (MusicInfo) iterator.next();
 //            map.put("id",mp3Info.getId());
@@ -170,12 +193,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 this,
                 listems,
                 R.layout.single_music,
-                new String[] {"bitmap","title","artist", "album"},
-                new int[] {R.id.image_sg,R.id.title_sg,R.id.artist_sg,R.id.album_sg}
+                new String[]{"bitmap", "title", "artist", "album"},
+                new int[]{R.id.image_sg, R.id.title_sg, R.id.artist_sg, R.id.album_sg}
         );
         //listview里加载数据
         musicListView.setAdapter(mSimpleAdapter);
-
 
 
         ContentResolver resolver = getContentResolver();
@@ -268,7 +290,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         return timew;
     }
 
-    public void player(int position){
+    public void player(int position) {
         TextView title = (TextView) findViewById(R.id.title_tx);
         TextView artist = (TextView) findViewById(R.id.artist_tx);
         TextView album = (TextView) findViewById(R.id.album_tx);
@@ -337,15 +359,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.play:
-                if (!mediaPlayer.isPlaying()) {
-                    mediaPlayer.start();
-                    handler.post(updatesb);
-                }
+            case R.id.state:
+                playstate = playstate + 1;
+                if (playstate > 3)
+                    playstate = 0;
                 break;
-            case R.id.pause:
+            case R.id.play_or_pause:
                 if (mediaPlayer.isPlaying()) {
                     mediaPlayer.pause();
+                    playOrPause.setText("PLAY");
+                } else {
+                    mediaPlayer.start();
+                    playOrPause.setText("PAUSE");
                 }
                 break;
             case R.id.stop:
@@ -359,26 +384,97 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
                 break;
             case R.id.next:
-                if(mediaPlayer.isPlaying()) {
-                    if(currentposition<musicList.size()-1) {
-                        currentposition = currentposition + 1;
-                        player(currentposition);
-                    }
-                    else
-                        Toast.makeText(MainActivity.this,"This is the last song",Toast.LENGTH_SHORT).show();
-
-                }
+                nextSong();
                 break;
             case R.id.prev:
-                if(mediaPlayer.isPlaying()) {
-                    if(currentposition>0) {
-                        currentposition = currentposition - 1;
+                prevSong();
+                break;
+            default:
+                break;
+        }
+    }
+
+    public void nextSong() {//下一首歌
+        switch (playstate) {
+            case 0: {
+                if (mediaPlayer.isPlaying()) {
+                    if (currentposition < musicList.size() - 1) {
+                        currentposition = currentposition + 1;
+                        player(currentposition);
+                    } else
+                        Toast.makeText(MainActivity.this, "This is the last song", Toast.LENGTH_SHORT).show();
+                }
+            }
+            break;
+            case 1: {
+                if (mediaPlayer.isPlaying()) {
+                    if (currentposition < musicList.size() - 1) {
+                        currentposition = currentposition + 1;
+                        player(currentposition);
+                    } else {
+                        currentposition = 0;
                         player(currentposition);
                     }
-                    else
-                        Toast.makeText(MainActivity.this,"This is the first song",Toast.LENGTH_SHORT).show();
-
                 }
+            }
+            break;
+            case 2: {
+                if (mediaPlayer.isPlaying()) {
+                    int i;
+                    do{
+                        i = (new Random()).nextInt(musicList.size());
+                    }while(currentposition==i);
+                    currentposition = i;
+                    player(currentposition);
+                }
+            }
+            break;
+            case 3:{
+                player(currentposition);
+            }break;
+            default:
+                break;
+        }
+    }
+
+    public void prevSong() {
+        switch (playstate) {
+            case 0: {
+                if (mediaPlayer.isPlaying()) {
+                    if (currentposition > 0) {
+                        currentposition = currentposition - 1;
+                        player(currentposition);
+                    } else
+                        Toast.makeText(MainActivity.this, "This is the first song", Toast.LENGTH_SHORT).show();
+                }
+            }
+            break;
+            case 1: {
+                if (mediaPlayer.isPlaying()) {
+                    if (currentposition > 0) {
+                        currentposition = currentposition - 1;
+                        player(currentposition);
+                    } else {
+                        currentposition = musicList.size() - 1;
+                        player(currentposition);
+                    }
+                }
+            }
+            break;
+            case 2: {
+                if (mediaPlayer.isPlaying()) {
+                    int i;
+                    do{
+                        i = (new Random()).nextInt(musicList.size());
+                    }while(currentposition==i);
+                    currentposition = i;
+                    player(currentposition);
+                }
+            }
+            break;
+            case 3:{
+                player(currentposition);
+            }break;
             default:
                 break;
         }
