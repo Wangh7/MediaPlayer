@@ -99,18 +99,19 @@
         android:orientation="horizontal"
         android:layout_marginTop="2dp"
         android:layout_marginBottom="10dp">
-        <Button
-            android:layout_width="match_parent"
-            android:layout_weight="1"
-            android:id="@+id/prev"
-            android:text="prev"
-            android:layout_height="wrap_content" />
+
         <Button
             android:layout_weight="1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/state"
             android:text="order"/>
+        <Button
+            android:layout_width="match_parent"
+            android:layout_weight="1"
+            android:id="@+id/prev"
+            android:text="prev"
+            android:layout_height="wrap_content" />
 
         <Button
             android:layout_weight="1"
@@ -120,18 +121,18 @@
             android:text="play"/>
 
         <Button
-            android:layout_weight="1"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/list"
-            android:text="song"/>
-
-        <Button
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="next"
             android:id="@+id/next"/>
+
+        <Button
+            android:layout_weight="1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/list"
+            android:text="song"/>
     </LinearLayout>
 
 
