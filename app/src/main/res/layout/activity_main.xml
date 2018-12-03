@@ -5,11 +5,18 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:gravity="bottom"
     tools:context=".MainActivity">
 
+    <com.example.wangh7.player.CircleImageView
+        android:layout_width="350dp"
+        android:layout_height="350dp"
+        android:id="@+id/image_2"
+        android:layout_gravity="center"
+        android:visibility="gone"/>
     <ListView
         android:layout_width="match_parent"
-        android:layout_height="390dp"
+        android:layout_height="380dp"
         android:id="@+id/list_lv"/>
 
 
@@ -85,7 +92,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_marginTop="2dp">
+        android:layout_marginTop="2dp"
+        android:layout_marginBottom="10dp">
         <Button
             android:layout_width="match_parent"
             android:layout_weight="1"
@@ -110,8 +118,8 @@
             android:layout_weight="1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/stop"
-            android:text="stop"/>
+            android:id="@+id/list"
+            android:text="song"/>
 
         <Button
             android:layout_width="match_parent"
