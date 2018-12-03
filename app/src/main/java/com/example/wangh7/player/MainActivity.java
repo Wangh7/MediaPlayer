@@ -5,9 +5,12 @@ import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.content.ContentResolver;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Handler;
@@ -295,6 +298,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         artist.setText(artistp);
         album.setText(albump);
         allTime.setText(timep);
+
+        Bitmap blurBitmap = ImageFilter.blurBitmap(this, musicList.get(position).getBm(), 25f);
+        Drawable drawable = new BitmapDrawable(blurBitmap);
+        getWindow().setBackgroundDrawable(drawable);
         imageView1.setImageBitmap(musicList.get(position).getBm());
         imageView2.setImageBitmap(musicList.get(position).getBm());
         Uri musicUri = Uri.withAppendedPath(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, String.valueOf(id));
