@@ -62,6 +62,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     int isplaying = 0;//播放状态：0暂停；1播放
     //private ImageView imageView2;
     ObjectAnimator animator;
+    ObjectAnimator animator2;
     private ListView musicListView = null;
     int currentlistviewheight = 380;
     int liststate = 1;
@@ -92,7 +93,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         next.setOnClickListener(this);
         prev.setOnClickListener(this);
         seekBar.setOnSeekBarChangeListener(mOnSeekBarChangeListener);
-
+        mediaPlayer.setOnCompletionListener(onCompletionListener);
         animator = ObjectAnimator.ofFloat(imageView2,"rotation",0,360);
         animator.setInterpolator(new LinearInterpolator());
         animator.setDuration(30000);
@@ -116,13 +117,24 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         @Override
         public void onStartTrackingTouch(SeekBar seekBar) {
+
         }
 
         @Override
         public void onStopTrackingTouch(SeekBar seekBar) {
             if (mediaPlayer != null) {
                 mediaPlayer.seekTo(seekBar.getProgress());
+                mediaPlayer.start();
+                circleResume();
             }
+        }
+    };
+
+    private MediaPlayer.OnCompletionListener onCompletionListener = new MediaPlayer.OnCompletionListener() {
+        @Override
+        public void onCompletion(MediaPlayer mp) {
+            player(currentposition);
+            nextSong();
         }
     };
 
