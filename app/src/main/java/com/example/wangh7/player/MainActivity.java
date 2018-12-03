@@ -47,7 +47,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private MediaPlayer mediaPlayer = new MediaPlayer();
     private ArrayList<Map<String, Object>> listems = null;//需要显示在listview里的信息
     public static ArrayList<MusicInfo> musicList = null; //音乐信息列表
-    private static int currentposition = -1;//当前播放列表里哪首音乐
+    private static int currentposition = 0;//当前播放列表里哪首音乐
     private static int playstate = 0;//播放状态：0顺序；1循环；2随机；3单曲
     private Button state;
     private Button playOrPause;
@@ -107,6 +107,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
         } else {
             initMediaPlayer();
+            player(0);
+            mediaPlayer.pause();
+            animator.pause();
         }
 
 
@@ -298,7 +301,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         artist.setText(artistp);
         album.setText(albump);
         allTime.setText(timep);
-
+        handler.post(updatesb);
         Bitmap blurBitmap = ImageFilter.blurBitmap(this, musicList.get(position).getBm(), 25f);
         blurBitmap = ImageFilter.handleImage(blurBitmap,1,80,0);
         Drawable drawable = new BitmapDrawable(blurBitmap);
