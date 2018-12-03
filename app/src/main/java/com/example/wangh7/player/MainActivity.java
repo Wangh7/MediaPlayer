@@ -300,6 +300,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         allTime.setText(timep);
 
         Bitmap blurBitmap = ImageFilter.blurBitmap(this, musicList.get(position).getBm(), 25f);
+        blurBitmap = ImageFilter.handleImage(blurBitmap,1,80,0);
         Drawable drawable = new BitmapDrawable(blurBitmap);
         getWindow().setBackgroundDrawable(drawable);
         imageView1.setImageBitmap(musicList.get(position).getBm());

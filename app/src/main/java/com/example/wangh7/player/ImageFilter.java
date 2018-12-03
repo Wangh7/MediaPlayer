@@ -2,6 +2,10 @@ package com.example.wangh7.player;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.ColorMatrix;
+import android.graphics.ColorMatrixColorFilter;
+import android.graphics.Paint;
 import android.renderscript.Allocation;
 import android.renderscript.Element;
 import android.renderscript.RenderScript;
@@ -49,5 +53,52 @@ public class ImageFilter {
         tmpOut.copyTo(outputBitmap);
 
         return outputBitmap;
+    }
+
+    /**
+     * 根据饱和度、色相、亮度调整图片
+     *
+     * @param bm
+     *            原图片
+     * @param saturation
+     *            饱和度，最小可设为0，此时对应的是灰度图(也就是俗话的“黑白图”)，
+     *            为1表示饱和度不变，设置大于1，就显示过饱和
+     * @param hue
+     *            色相
+     * @param lum
+     *            亮度,色轮旋转的角度,正值表示顺时针旋转，负值表示逆时针旋转
+     * @return 处理后的图片
+     */
+    public static Bitmap handleImage(Bitmap bm, int saturation, int hue, int lum) {
+        Bitmap bmp = Bitmap.createBitmap(bm.getWidth(), bm.getHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bmp);
+        Paint paint = new Paint();
+        paint.setAntiAlias(true);
+        ColorMatrix mLightnessMatrix = new ColorMatrix();
+        //ColorMatrix mSaturationMatrix = new ColorMatrix();
+        ColorMatrix mHueMatrix = new ColorMatrix();
+        ColorMatrix mAllMatrix = new ColorMatrix();
+        //float mSaturationValue = saturation * 1.0F / 127;
+        float mHueValue = hue * 1.0F / 127;
+        //float mLumValue = (lum - 127) * 1.0F / 127 * 180;
+        mHueMatrix.reset();
+        mHueMatrix.setScale(mHueValue, mHueValue, mHueValue, 1);// 红、绿、蓝三分量按相同的比例,最后一个参数1表示透明度不做变化
+
+        //mSaturationMatrix.reset();
+        //mSaturationMatrix.setSaturation(mSaturationValue);
+        //mLightnessMatrix.reset();
+
+        //mLightnessMatrix.setRotate(0, mLumValue);
+        //mLightnessMatrix.setRotate(1, mLumValue);
+        //mLightnessMatrix.setRotate(2, mLumValue);
+
+        mAllMatrix.reset();
+        mAllMatrix.postConcat(mHueMatrix);
+        //mAllMatrix.postConcat(mSaturationMatrix);
+        //mAllMatrix.postConcat(mLightnessMatrix);
+
+        paint.setColorFilter(new ColorMatrixColorFilter(mAllMatrix));
+        canvas.drawBitmap(bm, 0, 0, paint);
+        return bmp;
     }
 }
