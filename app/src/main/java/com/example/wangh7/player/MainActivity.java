@@ -171,7 +171,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         params.height = getPixelsFromDp(0);
                         imageView2.setVisibility(ImageView.VISIBLE);
                         musicListView.setLayoutParams(params);
-                        cirlceShow();
+
                     }
                 }break;
                 case 1:{
@@ -194,6 +194,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     };
     private void initMediaPlayer() {     //初始化播放器
+        cirlceShow();
         musicListView = (ListView) findViewById(R.id.list_lv);
 
         musicListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -250,72 +251,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 MediaStore.Audio.Media.ALBUM_ID,
                 MediaStore.Audio.Media._ID,
                 MediaStore.Audio.Media.DATA};
-
-/*
-        Cursor cursor = resolver.query(uri, searchlist, null, null, MediaStore.Audio.Media.DEFAULT_SORT_ORDER);
-
-        //while (cursor.moveToNext()) {
-        cursor.moveToNext();
-        cursor.moveToNext();
-        //cursor.moveToNext();
-        //cursor.moveToNext();
-        //cursor.moveToNext();
-        //cursor.moveToNext();
-
-
-        //获取音乐的路径，这个参数我们实际上不会用到，不过在调试程序的时候可以方便我们看到音乐的真实路径，确定寻找的文件的确就在我们规定的目录当中
-            //        String path = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA));
-            //获取音乐的ID
-                   String id = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID));
-            //通过URI和ID，组合出改音乐特有的Uri地址
-                  Uri musicUri = Uri.withAppendedPath(uri, id);
-            //获取音乐的名称
-            //    Log.e(TAG,"mingzi:");
-            String title_t = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.TITLE));
-            // Log.e(TAG,tilte);
-            //获取艺人
-               String artist_t = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ARTIST));
-
-               //获取专辑名字
-            String album_t = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM));
-            //获取音乐的时长，单位是毫秒
-                 long duration = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DURATION));
-            //获取该音乐所在专辑的id
-                 int albumId = cursor.getInt(cursor.getColumnIndexOrThrow(MediaStore.Audio.Albums.ALBUM_ID));
-            //再通过AlbumId组合出专辑的Uri地址
-                    Uri albumUri = ContentUris.withAppendedId(Uri.parse("content://media/external/audio/albumart"), albumId);
-
-
-            //title.setText(musicInfo.getTitle());
-        try {
-            mediaPlayer.reset();
-            mediaPlayer.setDataSource(MainActivity.this, musicUri);
-            mediaPlayer.prepare();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        MusicInfo musicInfo = new MusicInfo();
-        musicInfo.setId(Integer.valueOf(id));
-        musicInfo.setTitle(title_t);
-        musicInfo.setArtist(artist_t);
-        musicInfo.setAlbum(album_t);
-        musicInfo.setAlbumId(albumId);
-            Bitmap bm = getAlbumArt(albumId);
-            musicInfo.setBm(bm);
-            //
-        /*
-                title.setText("曲    名:"+musicInfo.getTitle());
-                artist.setText("艺术家:"+musicInfo.getArtist());
-                album.setText("专    辑:"+musicInfo.getAlbum());
-                //albumid.setText("专辑id:"+albumId);
-            //}
-            imageView.setImageBitmap(musicInfo.getBm());
-
-        //artist.setText("123123");
-        //}
-        cursor.close();
-*/
 
     }
 
